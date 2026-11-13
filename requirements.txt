@@ -1,0 +1,2 @@
+maibot-plugin-sdk>=2.19.0,<3
+curl-cffi>=0.16.3

@@ -1,0 +1,44 @@
+{
+  "manifest_version": 2,
+  "id": "local.provider-status-broadcast",
+  "version": "1.0.2",
+  "name": "DeepSeek / OpenAI 服务状态播报",
+  "description": "分别订阅 DeepSeek 和 OpenAI 官方 RSS，按 QQ 会话推送中断、降级和恢复。",
+  "author": {
+    "name": "krkr521",
+    "url": "https://github.com/krkr521"
+  },
+  "license": "MIT",
+  "urls": {
+    "repository": "https://github.com/krkr521/maibot-provider-status-broadcast",
+    "homepage": "https://github.com/krkr521/maibot-provider-status-broadcast",
+    "documentation": "https://github.com/krkr521/maibot-provider-status-broadcast/blob/main/README.md",
+    "issues": "https://github.com/krkr521/maibot-provider-status-broadcast/issues"
+  },
+  "host_application": {
+    "min_version": "1.3.18",
+    "max_version": "1.4.99"
+  },
+  "sdk": {
+    "min_version": "2.19.0",
+    "max_version": "2.99.99"
+  },
+  "dependencies": [
+    {
+      "type": "python_package",
+      "name": "curl-cffi",
+      "version_spec": ">=0.16.3"
+    }
+  ],
+  "capabilities": [
+    "send.text",
+    "api.call"
+  ],
+  "i18n": {
+    "default_locale": "zh-CN",
+    "supported_locales": [
+      "zh-CN"
+    ]
+  },
+  "plugin_type": "automation"
+}

@@ -1,0 +1,13 @@
+[plugin]
+enabled = true
+config_version = "1.0.0"
+# 可管理群订阅的机器人管理员 QQ 号，填写字符串；空列表不额外授予管理员权限。
+admin_qq_ids = []
+
+[deepseek]
+# 只有名单内的群可以开启 DeepSeek 播报；仍需在对应群使用开启命令。
+group_whitelist = []
+
+[openai]
+# OpenAI 与 DeepSeek 各自管理白名单和订阅。
+group_whitelist = []

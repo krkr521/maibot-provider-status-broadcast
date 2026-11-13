@@ -1,0 +1,14 @@
+/config.toml
+/config_back/
+/data/
+/logs/
+/.env
+/.env.*
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.venv/
+*.sqlite
+*.sqlite3
+*.db
