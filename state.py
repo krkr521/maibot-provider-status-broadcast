@@ -102,8 +102,11 @@ class StatusStore:
                     continue
                 notification = incident.notification(source, detected_at=checked if revision is not None else None)
                 db.executemany(
-                    "INSERT OR IGNORE INTO deliveries (kind, target, incident, status, updated, text)"
-                    " VALUES (?, ?, ?, ?, ?, ?)",
+                    "INSERT INTO deliveries (kind, target, incident, status, updated, text)"
+                    " VALUES (?, ?, ?, ?, ?, ?)"
+                    " ON CONFLICT(kind, target, incident, status) DO UPDATE SET"
+                    " updated = excluded.updated, text = excluded.text, claimed = 0"
+                    " WHERE excluded.updated > deliveries.updated",
                     (
                         (kind, target, incident.id, incident.status, updated, notification)
                         for kind, target, since in subscriptions

@@ -1,6 +1,6 @@
 [project]
 name = "maibot-provider-status-broadcast"
-version = "1.0.2"
+version = "1.0.3"
 description = "maibot-provider-status-broadcast for MaiBot"
 requires-python = ">=3.12"
 license = "MIT"

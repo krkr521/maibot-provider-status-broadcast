@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "id": "local.provider-status-broadcast",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "name": "DeepSeek / OpenAI 服务状态播报",
   "description": "分别订阅 DeepSeek 和 OpenAI 官方 RSS，按 QQ 会话推送中断、降级和恢复。",
   "author": {

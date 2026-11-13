@@ -82,7 +82,7 @@ def new_store(tmp_path, name="deepseek"):
     return store
 
 
-def test_transitions_and_restarts_dedupe_each_incident_state(tmp_path):
+def test_transitions_and_restarts_only_announce_new_state_changes(tmp_path):
     store = new_store(tmp_path)
     store.set_subscription("group", GROUP, "group-stream", True)
     store.set_subscription("private", USER, "private-stream", True)
@@ -107,6 +107,8 @@ def test_transitions_and_restarts_dedupe_each_incident_state(tmp_path):
     assert [store.claim_next({GROUP}).status for _ in range(4)] == ["degraded", "degraded", "resolved", "resolved"]
     store.observe(DEEPSEEK, [outage, degraded], {GROUP}, now + 8)
     store.observe(DEEPSEEK, [replace(degraded, updated=now + 9)], {GROUP}, now + 10)
+    assert [store.claim_next({GROUP}).status for _ in range(2)] == ["degraded", "degraded"]
+    store.observe(DEEPSEEK, [replace(degraded, updated=now + 10)], {GROUP}, now + 11)
     assert store.claim_next({GROUP}) is None
 
     store.observe(DEEPSEEK, [replace(outage, id="new-incident", updated=now + 11)], {GROUP}, now + 12)
@@ -123,6 +125,36 @@ def test_existing_active_incident_only_announces_new_updates(tmp_path):
     assert store.claim_next(set()) is None
     store.observe(DEEPSEEK, [replace(active, updated=now + 3, status="resolved")], set(), now + 4)
     assert store.claim_next(set()).status == "resolved"
+
+
+@pytest.mark.parametrize("source", [DEEPSEEK, OPENAI], ids=["deepseek", "openai"])
+def test_reopened_incident_notifies_each_new_transition_across_restarts(tmp_path, source):
+    store = new_store(tmp_path)
+    store.set_subscription("group", GROUP, "group-stream", True)
+    store.set_subscription("private", USER, "private-stream", True)
+    now = time.time()
+    revision = {"revision": now} if source.uses_channel_revision else {}
+    store.observe(source, [], {GROUP}, now, **revision)
+
+    for index, status in enumerate(("outage", "resolved", "outage", "resolved"), start=1):
+        updated = now + 1 if source.uses_channel_revision else now + index
+        incident = feed.Incident(
+            "reopened", updated, status, "incident", "", f"https://{source.host}/incidents/reopened",
+        )
+        revision = {"revision": now + index} if source.uses_channel_revision else {}
+        store.observe(source, [incident], {GROUP}, now + index + 0.1, **revision)
+        notifications = [store.claim_next({GROUP}), store.claim_next({GROUP})]
+        assert all(item is not None and item.status == status for item in notifications)
+        assert {item.stream_id for item in notifications} == {"group-stream", "private-stream"}
+        assert store.claim_next({GROUP}) is None
+
+        store = new_store(tmp_path)
+        store.observe(source, [incident], {GROUP}, now + index + 0.2, **revision)
+        assert store.claim_next({GROUP}) is None
+
+    old_outage = replace(incident, status="outage", updated=now + 1)
+    store.observe(source, [old_outage], {GROUP}, now + 4.5, **revision)
+    assert store.claim_next({GROUP}) is None
 
 
 def test_deepseek_rss_recovers_an_existing_atom_incident_with_unchanged_pubdate(tmp_path):
